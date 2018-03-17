@@ -19,9 +19,9 @@ input_shape = (img_rows, img_cols, 1)
 autoencoder = Sequential()
 # convolutional.. cause we are working with images after all
 # we apply 32 conv filters with 3x3 size
-autoencoder.add(Conv2D(32, (3, 3), activation='relu', border_mode='same', input_shape=input_shape))
+autoencoder.add(Conv2D(28, (3, 3), activation='relu', border_mode='same', input_shape=input_shape))
 autoencoder.add(MaxPooling2D(pool_size=(2,2)))
-autoencoder.add(Conv2D(32, (3, 3), activation='relu', border_mode='same'))
+autoencoder.add(Conv2D(28, (3, 3), activation='relu', border_mode='same'))
 autoencoder.add(UpSampling2D(size=(2,2)))
 # if the border mode is 'valid',
 # the output size will be smaller because the convolution is computed
@@ -32,6 +32,12 @@ autoencoder.add(UpSampling2D(size=(2,2)))
 # theano supports 'full'
 # but im too noob to understand all the difference, please come back here future self
 # and explain this to me!
+# to my past self:
+# when you are trying to apply the filter on the input, you may choose a
+# matrix of lets say 3x3.. but you want to operate with a border,
+# meaning you convolve with zeros padded on the rest of the input
+# if you are going to that on the edges.. i still dont know why you would want
+# to do this though
 autoencoder.add(Conv2D(1, (3, 3), activation='relu', border_mode='same'))
 autoencoder.compile(loss='mse', optimizer=RMSprop())
 autoencoder.summary()
@@ -40,7 +46,7 @@ autoencoder.fit(x=x_train, y=x_train, verbose=1, epochs=1, validation_data=(x_te
 
 autoencoded_imgs = autoencoder.predict(x_test)
 # images to show only show 1/100 of the total
-n = 20
+n = 100
 fig = plt.figure(figsize=(20, 20))
 fig.subplots_adjust(wspace=0.2, top=0.25)
 
