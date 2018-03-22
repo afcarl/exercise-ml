@@ -50,6 +50,7 @@ model.add(Dense(num_classes, activation='softmax'))
 model.compile(loss='categorical_crossentropy', optimizer=Adam(lr=learning_rate))
 model.summary()
 
-model.fit(x_train, y_train, batch_size=32, epochs=200, verbose=1, validation_data=(x_test, y_test))
+model.fit(x_train, y_train, batch_size=32, epochs=1, verbose=1, validation_data=(x_test, y_test))
 
 # TODO - write predictions
+prediction = model.predict(x_test)[0])
