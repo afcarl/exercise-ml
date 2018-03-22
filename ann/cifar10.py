@@ -53,4 +53,5 @@ model.summary()
 model.fit(x_train, y_train, batch_size=32, epochs=1, verbose=1, validation_data=(x_test, y_test))
 
 # TODO - write predictions
-prediction = model.predict(x_test)[0])
+prediction = model.predict(x_test)
+print(prediction[0])
