@@ -37,21 +37,21 @@ class DeepQAgent:
         if rd.random() < self.epsilon:
             return rd.randint(0, self.action_num - 1)
         else:
-            return np.argmax(self.brain.predict())
+            return np.argmax(self.brain.predict(s))
         
     def observe(self, sample): # (s, a, r, s_)       
-        self.brain.remember(sample)
+        self.brain.store(sample)
         
         # decrease epsilon
         # TODO maybe put the steps in the environment?
         self.steps += 1
-        self.epsilon.current = self.epsilon.min + (self.epsilon.max - self.epsilon.min) * math.exp(-self.lambda_ * self.steps)
+        self.epsilon = self.epsilon_min + (self.epsilon_max - self.epsilon_min) * math.exp(-self.lambda_ * self.steps)
         
     def replay(self):
         recall_entries = self.brain.recall(self.batch_size)
         recall_size = len(recall_entries)
         # create a null state with size state
-        null_state = np.zeros(self.state_count)
+        null_state = np.zeros(self.state_num)
         # (s, a, r, s_)  
         states  = np.array([ recall_entry[0] for recall_entry in recall_entries ])
         states_ = np.array([ ( null_state if recall_entry[3] is None else recall_entry[3] ) for recall_entry in recall_entries ])
@@ -133,5 +133,5 @@ class DeepQBrain:
         
     def recall(self, size):
         n = min(size, len(self.memory_entries))
-        return random.sample(self.memory_entries, size)
+        return rd.sample(self.memory_entries, n)
         
