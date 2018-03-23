@@ -26,6 +26,8 @@ class CartPoleEnvironment:
             s = s_
             reward_total += r
 
+            # print("Reward: " r)
+
             if done:
                 break
 
