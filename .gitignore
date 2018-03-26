@@ -2,3 +2,4 @@ graph
 examples
 backtest.py
 __pycache__
+*.h5

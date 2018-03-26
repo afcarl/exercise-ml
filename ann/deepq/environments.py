@@ -8,11 +8,11 @@ class CartPoleEnvironment:
     # run the whole simulation
     def run(self, agent):
         s = self.env.reset()
-        reward_total = 0 
+        reward_total = 0
 
-        while True:            
+        while True:
             self.env.render()
-            
+
             # get action a from state s
             a = agent.act(s)
             s_, r, done, info = self.env.step(a)
@@ -21,7 +21,7 @@ class CartPoleEnvironment:
                 s_ = None
 
             agent.observe( (s, a, r, s_) )
-            agent.replay()            
+            agent.replay()
 
             s = s_
             reward_total += r
@@ -31,4 +31,4 @@ class CartPoleEnvironment:
             if done:
                 break
 
-        print("Total reward:", reward_total)
+        # print("Total reward:", reward_total)

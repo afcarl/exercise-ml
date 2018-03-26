@@ -1,7 +1,9 @@
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import Dense
 from keras.optimizers import Adam
 import numpy as np, random as rd, math
+from pathlib import Path
+
 
 '''
 Q-Learning with Experience Replay
@@ -9,11 +11,11 @@ TODO Add a target network to stabilize learning
 https://arxiv.org/pdf/1509.02971.pdf
 '''
 class DeepQAgent:
-    
+
     def __init__(self, state_num, action_num):
         self.state_num = state_num
         self.action_num = action_num
-                
+
          # initialize Hyperparameters
         self.memory_capacity = 100000
         self.batch_size = 64
@@ -22,47 +24,47 @@ class DeepQAgent:
         # Epsilon: Greedy Factor
         self.epsilon_max = 1 # EXPLORE EVERYTHING
         self.epsilon_min = 0.01 # 1% Chance for Explore, else Exploit
-        self.epsilon = self.epsilon_max        
+        self.epsilon = self.epsilon_max
         # Lambda: Greed Factor Decay
         # underscore is there cause lambda is a reserved keyword
         self.lambda_ = 0.001
         self.steps = 0
-        
+
         # initialize the brain
         self.brain = DeepQBrain(state_num, action_num, self.memory_capacity)
-       
-        
+
+
     def act(self, s):
         # randomly choose any action if less than epsilon
         if rd.random() < self.epsilon:
             return rd.randint(0, self.action_num - 1)
         else:
             return np.argmax(self.brain.predict(s))
-        
-    def observe(self, sample): # (s, a, r, s_)       
+
+    def observe(self, sample): # (s, a, r, s_)
         self.brain.store(sample)
-        
+
         # decrease epsilon
         # TODO maybe put the steps in the environment?
         self.steps += 1
         self.epsilon = self.epsilon_min + (self.epsilon_max - self.epsilon_min) * math.exp(-self.lambda_ * self.steps)
-        
+
     def replay(self):
         recall_entries = self.brain.recall(self.batch_size)
         recall_size = len(recall_entries)
         # create a null state with size state
         null_state = np.zeros(self.state_num)
-        # (s, a, r, s_)  
+        # (s, a, r, s_)
         states  = np.array([ recall_entry[0] for recall_entry in recall_entries ])
         states_ = np.array([ ( null_state if recall_entry[3] is None else recall_entry[3] ) for recall_entry in recall_entries ])
-        
-        action = self.brain.predictBatch(states)
-        action_ = self.brain.predictBatch(states_)
-        
+
+        action = self.brain.predict_batch(states)
+        action_ = self.brain.predict_batch(states_)
+
         # zeroing map x to y (state -> actions)
         x = np.zeros((recall_size, self.state_num))
         y = np.zeros((recall_size, self.action_num))
-        
+
         # use experience for training
         for i in range(recall_size):
             s, a, r, s_  = recall_entries[i]
@@ -75,13 +77,15 @@ class DeepQAgent:
                 t[a] = r
             else:
                 t[a] = r + self.gamma * np.amax(action_[i])
-            
+
             x[i] = s
             y[i] = t
-            
+
         self.brain.train(x, y)
-      
-        
+
+    def save_model(self):
+        self.brain.save_model()
+
 # Deep Q Model Implementations with Memory
 class DeepQBrain:
 
@@ -89,49 +93,53 @@ class DeepQBrain:
         self.state_num = state_num
         self.action_num = action_num
         self.memory_capacity = memory_capacity
-        self.memory_entries = []        
-        
+        self.memory_entries = []
+        self.model_filename = "deepq.h5"
+
         '''
         TODO make this a function argument?
-        separated this hyperparameter because 
+        separated this hyperparameter because
         this is specific to the model and not the Q Learning
         learning rate
         '''
         self.learning_rate = 0.00001
-                
+
         # load model from file if found
-        # self.model.load_weights("cartpole.h5")        
-        self.model = self._createModel()  
+        model_file = Path(self.model_filename)
+        if model_file.exists():
+            self.model = load_model(self.model_filename)
+            print("********** Model loaded from file: ", self.model_filename)
+        else:
+            self.model = self._create_model()
 
     def train(self, x, y, epochs=1, verbose=0):
         self.model.fit(x, y, epochs=epochs, verbose=verbose)
-        
+
     def predict(self, s):
         return self.model.predict(s.reshape(1, self.state_num)).flatten()
-    
-    def predictBatch(self, s):
+
+    def predict_batch(self, s):
         return self.model.predict(s)
-        
-    def _createModel(self):
+
+    def save_model(self):
+        self.model.save(self.model_filename)
+        print("********** Model saved into file: ", self.model_filename)
+
+    def _create_model(self):
         model = Sequential()
-        
         # input -> Dense[64] -> output
         model.add(Dense(64, kernel_initializer='lecun_uniform', activation='relu', input_dim=self.state_num))
         model.add(Dense(self.action_num, activation='linear'))
         model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
         model.summary()
-
         return model
-        
+
     def store(self, memory_entry):
         # forget the oldesst one when beyond capacities
         if len(self.memory_entries) > self.memory_capacity:
             self.memory_entries.pop(0)
-            
-        self.memory_entries.append(memory_entry)        
-        
-        
+        self.memory_entries.append(memory_entry)
+
     def recall(self, size):
         n = min(size, len(self.memory_entries))
         return rd.sample(self.memory_entries, n)
-        
