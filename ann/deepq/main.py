@@ -10,8 +10,4 @@ action_num = cartpole.env.action_space.n
 
 agent = DeepQAgent(state_num, action_num)
 
-try:
-    while True:
-        cartpole.run(agent)
-finally:
-    agent.save_model()
+cartpole.run(agent)

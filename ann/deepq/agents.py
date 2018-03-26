@@ -29,7 +29,7 @@ class DeepQAgent:
         # underscore is there cause lambda is a reserved keyword
         self.lambda_ = 0.001
         self.steps = 0
-
+        self.update_frequency = 1000
         # initialize the brain
         self.brain = DeepQBrain(state_num, action_num, self.memory_capacity)
 
@@ -44,8 +44,16 @@ class DeepQAgent:
     def observe(self, sample): # (s, a, r, s_)
         self.brain.store(sample)
 
+        # update the target model periodically
+        if self.steps % self.update_frequency == 0:
+            self.brain.update_target()
+
+        # insert debug there
+        # if self.steps % 100 == 0:
+        # state
+        # prediction
+
         # decrease epsilon
-        # TODO maybe put the steps in the environment?
         self.steps += 1
         self.epsilon = self.epsilon_min + (self.epsilon_max - self.epsilon_min) * math.exp(-self.lambda_ * self.steps)
 
@@ -105,12 +113,15 @@ class DeepQBrain:
         self.learning_rate = 0.00001
 
         # load model from file if found
+        # _model is the target model
         model_file = Path(self.model_filename)
         if model_file.exists():
-            self.model = load_model(self.model_filename)
+            self.model  = load_model(self.model_filename)
+            self.model_ = load_model(self.model_filename)
             print("********** Model loaded from file: ", self.model_filename)
         else:
-            self.model = self._create_model()
+            self.model  = self._create_model()
+            self.model_ = self._create_model()
 
     def train(self, x, y, epochs=1, verbose=0):
         self.model.fit(x, y, epochs=epochs, verbose=verbose)
@@ -122,17 +133,21 @@ class DeepQBrain:
         return self.model.predict(s)
 
     def save_model(self):
-        self.model.save(self.model_filename)
+        self.model_.save(self.model_filename)
         print("********** Model saved into file: ", self.model_filename)
 
     def _create_model(self):
         model = Sequential()
         # input -> Dense[64] -> output
-        model.add(Dense(64, kernel_initializer='lecun_uniform', activation='relu', input_dim=self.state_num))
+        model.add(Dense(32, kernel_initializer='lecun_uniform', activation='relu', input_dim=self.state_num))
+        model.add(Dense(16, kernel_initializer='lecun_uniform', activation='relu'))
         model.add(Dense(self.action_num, activation='linear'))
         model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
         model.summary()
         return model
+
+    def update_target(self):
+        self.model_.set_weights(self.model.get_weights())
 
     def store(self, memory_entry):
         # forget the oldesst one when beyond capacities
