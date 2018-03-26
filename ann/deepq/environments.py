@@ -33,4 +33,4 @@ class CartPoleEnvironment:
 
         end = time.time()
         elapsed = end - self.time_start
-        print(time.strftime("%H:%M:%S", time.gmtime(elapsed)), reward_total)
+        print(time.strftime("%H:%M:%S", time.gmtime(elapsed)), reward_total, end="\r")
