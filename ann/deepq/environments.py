@@ -1,9 +1,11 @@
 import gym
+import time
 
 # environment wrapper
 class CartPoleEnvironment:
     def __init__(self):
         self.env = gym.make('CartPole-v0')
+        self.time_start = time.time()
 
     # run the whole simulation
     def run(self, agent):
@@ -26,9 +28,9 @@ class CartPoleEnvironment:
             s = s_
             reward_total += r
 
-            # print("Reward: " r)
-
             if done:
                 break
 
-        # print("Total reward:", reward_total)
+        end = time.time()
+        elapsed = end - self.time_start
+        print(time.strftime("%H:%M:%S", time.gmtime(elapsed)), reward_total)
