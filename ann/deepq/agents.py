@@ -118,7 +118,6 @@ class DeepQBrain:
         if model_file.exists():
             self.model  = load_model(self.model_filename)
             self.model_ = load_model(self.model_filename)
-            print("********** Model loaded from file: ", self.model_filename)
         else:
             self.model  = self._create_model()
             self.model_ = self._create_model()
@@ -134,7 +133,6 @@ class DeepQBrain:
 
     def save_model(self):
         self.model_.save(self.model_filename)
-        print("********** Model saved into file: ", self.model_filename)
 
     def _create_model(self):
         model = Sequential()
