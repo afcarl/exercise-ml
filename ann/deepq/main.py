@@ -10,4 +10,4 @@ action_num = cartpole.env.action_space.n
 
 agent = DeepQAgent(state_num, action_num)
 
-cartpole.run(agent)
+cartpole.run(agent, episodes=10000)

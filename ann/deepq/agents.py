@@ -55,7 +55,7 @@ class DeepQAgent:
 
         # decrease epsilon
         self.steps += 1
-        self.epsilon = self.epsilon_min + (self.epsilon_max - self.epsilon_min) * math.exp(-self.lambda_ * self.steps)
+        # self.epsilon = self.epsilon_min + (self.epsilon_max - self.epsilon_min) * math.exp(-self.lambda_ * self.steps)
 
     def replay(self):
         recall_entries = self.brain.recall(self.batch_size)
