@@ -35,6 +35,7 @@ model = Sequential()
 model.add(Conv2D(32, (3, 3), kernel_initializer='lecun_uniform',activation='relu', padding='same', input_shape=input_shape))
 model.add(Conv2D(32, (3, 3), kernel_initializer='lecun_uniform',activation='relu', padding='same'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(BatchNormalization())
 # setting dropout probability at 25%
 model.add(Dropout(0.25))
 # Conv[64] -> Conv[64] -> Pool -> Dropout
@@ -44,6 +45,11 @@ model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(BatchNormalization())
 model.add(Dropout(0.25))
 
+model.add(Conv2D(128, (3, 3), activation='relu', padding='same'))
+model.add(Conv2D(128, (3, 3), activation='relu', padding='same'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(BatchNormalization())
+model.add(Dropout(0.25))
 # flatten -> FCC -> Dropout -> Softmax
 model.add(Flatten())
 model.add(Dense(512, kernel_initializer='lecun_uniform', activation='relu'))
@@ -54,11 +60,12 @@ model.add(Dense(num_classes, kernel_initializer='lecun_uniform', activation='sof
 model.compile(loss='categorical_crossentropy', optimizer=Adam(lr=learning_rate), metrics=['acc'])
 model.summary()
 
-tensorboard = TensorBoard(log_dir="logs/{}".format(time()))
+tensorboard = TensorBoard(log_dir='logs/{}'.format(time()))
 early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=0, mode='auto')
-model_checkpoint = ModelCheckpoint(filepath="models/cifar10.hd5", monitor="val_loss", verbose=0, save_best_only=True, save_weights_only=False, mode="auto", period=1)
-model.fit(x_train, y_train, batch_size=256, epochs=1000, verbose=1, validation_data=(x_test, y_test), callbacks=[tensorboard, early_stopping])
+model_checkpoint = ModelCheckpoint('weights.{epoch:02d}-{val_loss:.2f}.h5', monitor='val_loss', verbose=0, save_best_only=True, save_weights_only=False, mode='auto', period=1)
+
+model.fit(x_train, y_train, batch_size=256, epochs=100, verbose=1, validation_data=(x_test, y_test), callbacks=[tensorboard, early_stopping, model_checkpoint])
 
 # TODO - write predictions
 prediction = model.predict(x_test)
-print(prediction[0]) 
+print(prediction[0])
