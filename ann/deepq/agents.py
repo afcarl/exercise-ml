@@ -29,7 +29,7 @@ class DeepQAgent:
         # underscore is there cause lambda is a reserved keyword
         self.lambda_ = 0.001
         self.steps = 0
-        self.update_frequency = 1000
+        self.update_frequency = 100
         # initialize the brain
         self.brain = DeepQBrain(state_num, action_num, self.memory_capacity)
 
@@ -42,7 +42,11 @@ class DeepQAgent:
             return np.argmax(self.brain.predict(s))
 
     def observe(self, sample): # (s, a, r, s_)
-        self.brain.store(sample)
+        if sample[1] == 1:
+            s = (sample[0], 2, sample[2], sample[3])
+        else:
+            s = (sample[0], sample[1], sample[2], sample[3])
+        self.brain.store(s)
 
         # update the target model periodically
         if self.steps % self.update_frequency == 0:
