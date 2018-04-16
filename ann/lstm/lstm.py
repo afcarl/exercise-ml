@@ -29,7 +29,14 @@ def build_model(layers):
 
 build_model([1, 50, 100, 1])
 
-data = np.arange(500).reshape((1,500,1))
-print(data)
+true_data = np.arange(500)
+test_data = true_data.reshape((1,500,1))
+predicted_data = true_data
+# todo train instead? lol
 
-# todo train
+fig = plt.figure(facecolor='white')
+ax = fig.add_subplot(111)
+ax.plot(true_data, label='True Data')
+plt.plot(predicted_data, label='Prediction')
+plt.legend()
+plt.show()
