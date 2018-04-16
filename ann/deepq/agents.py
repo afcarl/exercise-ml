@@ -7,7 +7,7 @@ from pathlib import Path
 
 '''
 Q-Learning with Experience Replay
-TODO Add a target network to stabilize learning
+Added Target Network to stabilize learning
 https://arxiv.org/pdf/1509.02971.pdf
 '''
 class DeepQAgent:
@@ -160,3 +160,10 @@ class DeepQBrain:
     def recall(self, size):
         n = min(size, len(self.memory_entries))
         return rd.sample(self.memory_entries, n)
+
+
+
+'''
+Actor Critic Agent
+Add the actor critic here
+'''
