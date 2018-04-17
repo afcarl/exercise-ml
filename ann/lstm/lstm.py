@@ -28,12 +28,12 @@ def build_model(layers):
 
 
 def create_data(sequence_length=50):
-    data = np.arange(2000)
+    data = np.arange(1, 2000)
     sequence_length = sequence_length + 1
     result = []
     for index in range(len(data) - sequence_length):
         result.append(data[index: index + sequence_length])
-    print(result)
+
     normalized_result = []
     # normalize
     for r in result:
@@ -56,18 +56,29 @@ def create_data(sequence_length=50):
 
     return [x_train, y_train, x_test, y_test]
 
-def normalise_windows(window_data):
-    normalised_data = []
-    
-   
-    return normalised_data
+def plot_results(predicted_data, true_data):
+    fig = plt.figure(facecolor='white')
+    ax = fig.add_subplot(111)
+    ax.plot(true_data, label='True Data')
+    plt.plot(predicted_data, label='Prediction')
+    plt.legend()
+    plt.show()
 
-build_model([1, 50, 100, 1])
+model = build_model([1, 50, 100, 1])
 
 X_train, y_train, X_test, y_test = create_data()
 
-predicted_data = X_train
+model.fit(
+    X_train,
+    y_train,
+    batch_size=512,
+    nb_epoch=10,
+    validation_split=0.05)
 
+predicted = model.predict(X_test)
+predicted = np.reshape(predicted, (predicted.size,))
+plot_results(predicted, y_test)
+'''
 fig = plt.figure(facecolor='white')
 ax = fig.add_subplot(111)
 ax.plot(X_train, label='True Data')
