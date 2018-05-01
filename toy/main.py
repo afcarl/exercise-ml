@@ -1,59 +1,41 @@
 import numpy as np
-import pandas as pd
-from datetime import datetime
 import matplotlib.pyplot as plt
-from os import walk
-from os.path import join
-
-root_dir = "./toy/historical"
-
-# read all files in a directory and get a list
-def get_file_list(dir):
-    filenames_only = []
-    for (dirpath, dirnames, filenames) in walk(dir):
-        filenames_only.extend(filenames)
-        break
-    return filenames_only
-
-def read_from_file(file):
-    df = pd.read_csv(file, \
-    delimiter='\t', \
-    header=None, \
-    names=['date', 'close', 'open', 'high', 'low', 'volume', 'change'] )
-
-    # strip all whitespace and commas
-    df = df.astype(str)
-    df = df.applymap(str.strip).applymap(lambda x: x.replace(',',''))
-
-    # process change
-    df.change = df.change.apply(lambda x : float(x.strip('%'))/100)
-    # process volume
-    # df.volume = df.volume.replace(r'[KM]+$', '', regex=True)
-    # print(df.volume.to_string())
-
-    df.volume = (df.volume.replace(r'[KM]+$', '', regex=True).astype(float) * \
-        df.volume.str.extract(r'[\d\.]+([KM]+)', expand=False).\
-            fillna(1).replace(['K','M'], [10**3, 10**6]).astype(int))
-
-    # process date
-    df.date = pd.to_datetime(df.date, format='%b %d %Y')
-
-    # process OHLC
-    df.close = df.close.astype(float)
-    df.open = df.open.astype(float)
-    df.high = df.high.astype(float)
-    df.low = df.low.astype(float)
-
-    return df
+import pandas as pd
+from sklearn import preprocessing
+import indicators
+import utils
+import processor
 
 
-da = np.append([[[1,2,3],[4,5,6],[7,8,9]]],[[[1,2,3],[4,5,6],[7,8,9]]], axis=0)
-da
-y = np.expand_dims([[1,2,3],[4,5,6],[7,8,9]], axis=0)
-y
 
-df = read_from_file("./toy/historical/ac")
+root_dir = "./historical"
+df1 = utils.read_from_file("./historical/ac")
 
+df1 = indicators.heiken_ashi(df1)
+df1 = indicators.ema(df1)
+
+# create a new datafram
+df2 = pd.DataFrame(df1[["date"]], index=df1.index)
+
+df2 = df2.join(processor.ema_volume_diff(df1))
+
+x = df2[['ema_diff']].as_matrix()
+x = x[np.logical_not(np.isnan(x))]
+x = x.reshape(-1, 1)
+x
+max_abs_scaler = preprocessing.MaxAbsScaler()
+x_abs = max_abs_scaler.fit_transform(x)
+
+x_abs
+x.shape[0]
+plt.plot(np.arange(0,x.shape[0]), x)
+plt.plot(np.arange(0,x.shape[0]), x_abs)
+plt.show()
+
+# df.plot.line(y="ha_close")
+# df.plot.line(y="ema_20")
+# df.plot.line(y="close")
+# plt.show()
 # files = get_file_list(root_dir)
 #
 # for f in files:
