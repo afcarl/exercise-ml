@@ -19,6 +19,7 @@ def heiken_ashi(df):
 def ema(df, n=20):
     ema = pd.Series(df['volume'].ewm(span=n, min_periods=n).mean(), name='ema_volume')
     df = df.join(ema)
+    df = df.fillna()
     return df
 
 def relative_strength_index(df, n=14):
