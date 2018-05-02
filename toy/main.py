@@ -6,20 +6,22 @@ import indicators
 import utils
 import processor
 
-
-
 root_dir = "./historical"
 df1 = utils.read_from_file("./historical/ac")
 
+
 df1 = indicators.heiken_ashi(df1)
 df1 = indicators.ema(df1)
+df1 = processor.ema_volume_diff(df1)
+df1 = df1.fillna(0)
 
-# create a new datafram
+
+# Create a new dataframe
+scaler = preprocessing.MaxAbsScaler()
 df2 = pd.DataFrame(df1[["date"]], index=df1.index)
-df2 = df2.join(processor.ema_volume_diff(df1))
 
-# max_abs_scaler = preprocessing.MaxAbsScaler()
-# x_abs = max_abs_scaler.fit_transform(x)
+df2 = df2.join(pd.Series(scaler.fit_transform(df1[["ema_diff"]]).flatten(), name="ema_diff_norm"))
+
 
 # x = df2[['ema_diff']].as_matrix()
 # x = x[np.logical_not(np.isnan(x))]
@@ -30,6 +32,8 @@ df2 = df2.join(processor.ema_volume_diff(df1))
 # x_abs
 # df2 = df2.join(pd.Series(x_abs.flatten(), name="abs_ema_diff"))
 # x_abs
+
+
 
 
 # plt.figure()

@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from os import walk
 from os.path import join
@@ -39,6 +40,6 @@ def read_from_file(file):
     df.high = df.high.astype(float)
     df.low = df.low.astype(float)
 
-    # df = df.set_index("date")
-    # df = df[::-1]
+    df = df[::-1]
+    df = df.set_index(np.arange(0, df.shape[0]))
     return df

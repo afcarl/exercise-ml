@@ -1,7 +1,7 @@
 import pandas as pd
 
 def ema_volume_diff(df):
-    return pd.Series(df["volume"] - df["ema_volume"], name='ema_diff')
+    return df.join(pd.Series(df["volume"] - df["ema_volume"], name="ema_diff"))
 
 # lower all ha
 
