@@ -43,6 +43,6 @@ def relative_strength_index(df, n=14):
     DoI = pd.Series(DoI)
     PosDI = pd.Series(UpI.ewm(span=n, min_periods=n).mean())
     NegDI = pd.Series(DoI.ewm(span=n, min_periods=n).mean())
-    RSI = pd.Series(PosDI / (PosDI + NegDI), name='RSI_' + str(n))
+    RSI = pd.Series(PosDI / (PosDI + NegDI), name='rsi')
     df = df.join(RSI)
     return df
