@@ -7,20 +7,28 @@ import utils
 import processor
 
 root_dir = "./historical"
-df1 = utils.read_from_file("./historical/ac")
+df = utils.read_from_file("./historical/ac")
 
-df1 = indicators.heiken_ashi(df1)
-df1 = indicators.ema(df1)
-df1 = indicators.relative_strength_index(df1)
-df1 = processor.ema_volume_diff(df1)
-df1 = df1.fillna(0)
+df = indicators.heiken_ashi(df)
+df = indicators.ema_volume(df)
+df = indicators.relative_strength_index(df)
+df = df.fillna(0)
+df = processor.ema_volume_diff(df)
+
+# df = df[df.ema_diff != 0]
+dd = df.ema_volume.iloc[:50]
+
+
+
 
 # Create a new dataframe
 scaler = preprocessing.MaxAbsScaler()
-df2 = pd.DataFrame(df1[["date"]], index=df1.index)
+df2 = pd.DataFrame(df[["date"]], index=df.index)
 
-df2["rsi_norm"] = df1.rsi.apply(lambda x : x - 0.5 if x != 0 else 0 )
-df2 = df2.join(pd.Series(scaler.fit_transform(df1[["ema_diff"]]).flatten(), name="ema_diff_norm"))
+
+
+df2["rsi_norm"] = df.rsi.apply(lambda x : x - 0.5 if x != 0 else 0 )
+df2 = df2.join(pd.Series(scaler.fit_transform(df[["ema_diff"]]).flatten(), name="ema_diff_norm"))
 
 
 

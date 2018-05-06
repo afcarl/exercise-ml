@@ -16,7 +16,7 @@ def heiken_ashi(df):
     df['ha_low'] = df[['ha_open','ha_close','low']].min(axis=1)
     return df
 
-def ema(df, n=20):
+def ema_volume(df, n=20):
     ema = pd.Series(df['volume'].ewm(span=n, min_periods=n).mean(), name='ema_volume')
     df = df.join(ema)
     return df
