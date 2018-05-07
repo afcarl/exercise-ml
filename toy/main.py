@@ -9,6 +9,18 @@ import processor
 root_dir = "./historical"
 df = utils.read_from_file("./historical/ac")
 
+median_price = pd.Series(df['high'] - df['low'])
+sma_5 = pd.Series(median_price.rolling(window=5, min_periods=5).mean())
+sma_34 = pd.Series(median_price.rolling(window=34, min_periods=24).mean())
+ao = sma_5 - sma_34
+sma_ao = pd.Series(ao.rolling(window=5, min_periods=5).mean())
+ac = ao - sma_ao
+
+
+tf = ac[<0]
+ac.iloc[:150].plot.bar()
+plt.show()
+
 df = indicators.heiken_ashi(df)
 df = indicators.ema_volume(df)
 df = indicators.relative_strength_index(df)
