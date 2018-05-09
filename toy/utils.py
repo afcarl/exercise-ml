@@ -2,6 +2,12 @@ import numpy as np
 import pandas as pd
 from os import walk
 from os.path import join
+import indicators
+import utils
+import processor
+
+root_dir = "./historical"
+target_dir = "./target"
 
 # read all files in a directory and get a list
 def get_file_list(dir):
@@ -43,3 +49,13 @@ def read_from_file(file):
     df = df[::-1]
     df = df.set_index(np.arange(0, df.shape[0]))
     return df
+
+def write_signals():
+    files = get_file_list(root_dir)
+
+    for f in files:
+        df = read_from_file(join(root_dir, f))
+        df = indicators.ac(df)
+        df = processor.get_signals(df)
+        df = df[["date","signal"]]
+        df[df.signal != 0].to_csv(join(target_dir, f))

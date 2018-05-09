@@ -2,33 +2,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn import preprocessing
-import indicators
+
 import utils
-import processor
 
-root_dir = "./historical"
-df = utils.read_from_file("./historical/ac")
+utils.write_signals()
 
-median_price = pd.Series(df['high'] - df['low'])
-sma_5 = pd.Series(median_price.rolling(window=5, min_periods=5).mean())
-sma_34 = pd.Series(median_price.rolling(window=34, min_periods=24).mean())
-ao = sma_5 - sma_34
-sma_ao = pd.Series(ao.rolling(window=5, min_periods=5).mean())
-ac = ao - sma_ao
+# df = utils.read_from_file("./historical/ac")
 
-
-tf = ac[<0]
-ac.iloc[:150].plot.bar()
-plt.show()
-
-df = indicators.heiken_ashi(df)
-df = indicators.ema_volume(df)
-df = indicators.relative_strength_index(df)
-df = df.fillna(0)
-df = processor.ema_volume_diff(df)
-
-# df = df[df.ema_diff != 0]
-dd = df.ema_volume.iloc[:50]
+#
+#
+# tf = ac[<0]
+# ac.iloc[:150].plot.bar()
+# plt.show()
+#
+# df = indicators.heiken_ashi(df)
+# df = indicators.ema_volume(df)
+# df = indicators.relative_strength_index(df)
+# df = df.fillna(0)
+# df = processor.ema_volume_diff(df)
+#
+# # df = df[df.ema_diff != 0]
+# dd = df.ema_volume.iloc[:50]
 
 
 
@@ -53,9 +47,6 @@ df2 = df2.join(pd.Series(scaler.fit_transform(df[["ema_diff"]]).flatten(), name=
 # x_abs
 # df2 = df2.join(pd.Series(x_abs.flatten(), name="abs_ema_diff"))
 # x_abs
-
-
-
 
 # plt.figure()
 # plt.subplot(2,1,1)

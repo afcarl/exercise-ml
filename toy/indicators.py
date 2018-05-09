@@ -46,3 +46,14 @@ def relative_strength_index(df, n=14):
     RSI = pd.Series(PosDI / (PosDI + NegDI), name='rsi')
     df = df.join(RSI)
     return df
+
+
+def ac(df):
+    median_price = pd.Series(df['high'] - df['low'])
+    sma_5 = pd.Series(median_price.rolling(window=5, min_periods=5).mean())
+    sma_34 = pd.Series(median_price.rolling(window=34, min_periods=24).mean())
+    ao = sma_5 - sma_34
+    sma_ao = pd.Series(ao.rolling(window=5, min_periods=5).mean())
+    ac = pd.Series(ao - sma_ao, name="ac")
+    df['ac'] = ac.fillna(0)
+    return df
