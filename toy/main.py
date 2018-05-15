@@ -5,12 +5,11 @@ from sklearn import preprocessing
 
 import utils
 
-utils.write_signals()
+dd = utils.get_history("ALI")
+dd
 
-# df = utils.read_from_file("./historical/ac")
-
-#
-#
+df = utils.read_from_file("./historical/ali")
+df
 # tf = ac[<0]
 # ac.iloc[:150].plot.bar()
 # plt.show()
@@ -24,20 +23,15 @@ utils.write_signals()
 # # df = df[df.ema_diff != 0]
 # dd = df.ema_volume.iloc[:50]
 
-
-
-
 # Create a new dataframe
-scaler = preprocessing.MaxAbsScaler()
-df2 = pd.DataFrame(df[["date"]], index=df.index)
-
-
-
-df2["rsi_norm"] = df.rsi.apply(lambda x : x - 0.5 if x != 0 else 0 )
-df2 = df2.join(pd.Series(scaler.fit_transform(df[["ema_diff"]]).flatten(), name="ema_diff_norm"))
-
-
-
+# scaler = preprocessing.MaxAbsScaler()
+# df2 = pd.DataFrame(df[["date"]], index=df.index)
+#
+#
+#
+# df2["rsi_norm"] = df.rsi.apply(lambda x : x - 0.5 if x != 0 else 0 )
+# df2 = df2.join(pd.Series(scaler.fit_transform(df[["ema_diff"]]).flatten(), name="ema_diff_norm"))
+#
 # x = df2[['ema_diff']].as_matrix()
 # x = x[np.logical_not(np.isnan(x))]
 # x = x.reshape(-1, 1)
