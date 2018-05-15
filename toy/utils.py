@@ -6,8 +6,7 @@ import indicators
 import utils
 import processor
 import requests
-from datetime import datetime
-from dateutil import tz
+from datetime import datetime, timedelta
 
 root_dir = "./historical"
 target_dir = "./target"
@@ -63,8 +62,26 @@ def write_signals():
         df = df[["date","signal"]]
         df[df.signal != 0].to_csv(join(target_dir, f))
 
+def print_signals():
+    files = get_file_list(root_dir)
+
+    for f in files:
+        dd = utils.get_history(f)
+        dd = indicators.ac(dd)
+        dd = processor.get_signals(dd)
+        if(dd.signal.iloc[-1] != 0):
+            print(f)
+            print(dd.tail())
+            print("\n")
+
+
 def get_history(stock):
-    url = "http://api.pse.tools/api/chart/history?symbol={0}&resolution=D&from=1495274769&to=1526378830".format(stock)
+    now = datetime.today()
+    past = now - timedelta(days=100)
+    now_ts = str(int(now.timestamp()))
+    past_ts = str(int(past.timestamp()))
+
+    url = "http://api.pse.tools/api/chart/history?symbol={0}&resolution=D&from={1}&to={2}".format(stock, past_ts, now_ts)
     response = requests.get(url).json()
     time_series  = pd.Series(response["t"], name="date")
     open_series  = pd.Series(response["o"], name="open")
@@ -74,12 +91,12 @@ def get_history(stock):
     volume_series = pd.Series(response["v"], name="volume")
 
     result = pd.concat([time_series, open_series, high_series, low_series, close_series, volume_series], axis=1)
-    result.date = result.date.apply(convertUTC)
+    result.date = result.date.apply(convert_unix_time)
     return result
 
 
-def convertUTC(date):
-    d = datetime.utcfromtimestamp(date)
+def convert_unix_time(date):
+    d = datetime.fromtimestamp(date)
     day = str(d.day)
     month = str(d.month)
     year = str(d.year)

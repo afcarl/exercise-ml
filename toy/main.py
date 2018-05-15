@@ -2,14 +2,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn import preprocessing
-
+import indicators
 import utils
+import processor
 
-dd = utils.get_history("ALI")
-dd
+utils.print_signals()
 
-df = utils.read_from_file("./historical/ali")
-df
+
+# df = utils.read_from_file("./historical/ali")
+# df
 # tf = ac[<0]
 # ac.iloc[:150].plot.bar()
 # plt.show()
