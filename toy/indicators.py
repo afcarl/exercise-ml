@@ -9,7 +9,7 @@ def heiken_ashi(df):
     for row in df.itertuples():
         ha_open = (previous_row.open + previous_row.close) / 2
         df.loc[i,'ha_open'] = ha_open
-        previous_row = nt(ha_open, row.close)
+        previous_row = nt(ha_open, row.ha_close)
         i += 1
 
     df['ha_high'] = df[['ha_open','ha_close','high']].max(axis=1)
