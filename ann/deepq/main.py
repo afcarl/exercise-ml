@@ -1,6 +1,9 @@
 from environments import CartPoleEnvironment
 from agents import DeepQAgent
-
+import os, warnings
+# hide warnings
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+warnings.filterwarnings("ignore")
 # doing the cart pole with deep q
 cartpole = CartPoleEnvironment()
 
@@ -9,5 +12,4 @@ state_num  = cartpole.env.observation_space.shape[0]
 action_num = cartpole.env.action_space.n
 
 agent = DeepQAgent(state_num, action_num)
-
 cartpole.run(agent, episodes=10000)

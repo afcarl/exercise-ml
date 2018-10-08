@@ -27,11 +27,11 @@ autoencoder.add(UpSampling2D(size=(2,2)))
 # the output size will be smaller because the convolution is computed
 # only where the input and the filter overlaps
 # otherwise, border mode is 'same'
-# the output is the same. it will go out of bounds of the input .. 
+# the output is the same. it will go out of bounds of the input ..
 # this area is padded with zeros.
 # theano supports 'full'
-# but im too noob to understand all the difference, please come back here future self
-# and explain this to me!
+# but im too noob to understand all the difference, please come back here future
+# self and explain this to me!
 # to my past self:
 # when you are trying to apply the filter on the input, you may choose a
 # matrix of lets say 3x3.. but you want to operate with a border,
@@ -55,12 +55,10 @@ for i in range(1, n + 1):
     encoded.get_xaxis().set_visible(False)
     encoded.get_yaxis().set_visible(False)
     plt.imshow(autoencoded_imgs[i-1].reshape(28, 28), cmap='gray')
-    
+
     original = fig.add_subplot(2, n, i)
     original.get_xaxis().set_visible(False)
     original.get_yaxis().set_visible(False)
-    plt.imshow(x_test[i-1].reshape(28, 28), cmap='gray')        
-    
+    plt.imshow(x_test[i-1].reshape(28, 28), cmap='gray')
+
 plt.show()
-
-
