@@ -1,5 +1,5 @@
 from keras.models import Sequential, load_model
-from keras.layers import Dense
+from keras.layers import Dense, Dropout, BatchNormalization
 from keras.optimizers import Adam
 import numpy as np, random as rd, math
 from pathlib import Path
@@ -11,9 +11,10 @@ https://arxiv.org/pdf/1509.02971.pdf
 '''
 class DeepQAgent:
 
-    def __init__(self, state_num, action_num):
+    def __init__(self, state_num, action_num, model_name):
         self.state_num = state_num
         self.action_num = action_num
+        self.model_name = model_name
 
          # initialize Hyperparameters
         self.memory_capacity = 100000
@@ -26,16 +27,16 @@ class DeepQAgent:
         self.epsilon = self.epsilon_max
         # Lambda: Greed Factor Decay
         # underscore is there cause lambda is a reserved keyword
-        self.lambda_ = 0.001
+        self.lambda_ = 0.01
         self.steps = 0
-        self.update_frequency = 100
+        self.update_frequency = 10
+        self.is_training = True
         # initialize the brain
-        self.brain = DeepQBrain(state_num, action_num, self.memory_capacity)
-
+        self.brain = DeepQBrain(state_num, action_num, self.memory_capacity, self.model_name)
 
     def act(self, s):
         # randomly choose any action if less than epsilon
-        if rd.random() < self.epsilon:
+        if rd.random() < self.epsilon and self.is_training:
             return rd.randint(0, self.action_num - 1)
         else:
             return np.argmax(self.brain.predict(s))
@@ -53,7 +54,7 @@ class DeepQAgent:
 
         # decrease epsilon
         self.steps += 1
-        # self.epsilon = self.epsilon_min + (self.epsilon_max - self.epsilon_min) * math.exp(-self.lambda_ * self.steps)
+        self.epsilon = self.epsilon_min + (self.epsilon_max - self.epsilon_min) * math.exp(-self.lambda_ * self.steps)
 
     def replay(self):
         recall_entries = self.brain.recall(self.batch_size)
@@ -95,12 +96,12 @@ class DeepQAgent:
 # Deep Q Model Implementations with Memory
 class DeepQBrain:
 
-    def __init__(self, state_num, action_num, memory_capacity):
+    def __init__(self, state_num, action_num, memory_capacity, model_name):
         self.state_num = state_num
         self.action_num = action_num
         self.memory_capacity = memory_capacity
         self.memory_entries = []
-        self.model_filename = "deepq.h5"
+        self.model_filename = "./models/" + model_name
 
         '''
         TODO make this a function argument?
@@ -139,8 +140,8 @@ class DeepQBrain:
         # input -> Dense[64] -> output
         model.add(Dense(32, kernel_initializer='lecun_uniform', activation='relu', input_dim=self.state_num))
         model.add(Dense(16, kernel_initializer='lecun_uniform', activation='relu'))
-        model.add(Dense(self.action_num, activation='linear'))
-        model.compile(loss='mse', optimizer=Adam(lr=self.alpha))
+        model.add(Dense(self.action_num, kernel_initializer='lecun_uniform', activation='softmax'))
+        model.compile(loss='categorical_crossentropy', optimizer=Adam(lr=self.alpha))
         model.summary()
         return model
 
@@ -156,7 +157,6 @@ class DeepQBrain:
     def recall(self, size):
         n = min(size, len(self.memory_entries))
         return rd.sample(self.memory_entries, n)
-
 
 
 '''

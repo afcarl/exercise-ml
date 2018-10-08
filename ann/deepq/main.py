@@ -1,15 +1,22 @@
-from environments import CartPoleEnvironment
+from environments import Environment
 from agents import DeepQAgent
 import os, warnings
 # hide warnings
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 warnings.filterwarnings("ignore")
-# doing the cart pole with deep q
-cartpole = CartPoleEnvironment()
+
+cartpole = 'CartPole-v0'
+mountaincar = 'MountainCar-v0'
+# stockmarket = 'StockMarket'
+
+current_env = mountaincar
+environment = Environment(current_env)
 
 # get the shape of the observation and action space
-state_num  = cartpole.env.observation_space.shape[0]
-action_num = cartpole.env.action_space.n
+state_num  = environment.env.observation_space.shape[0]
+action_num = environment.env.action_space.n
 
-agent = DeepQAgent(state_num, action_num)
-cartpole.run(agent, episodes=10000)
+agent = DeepQAgent(state_num, action_num, current_env)
+environment.train(agent)
+agent.is_training = False
+environment.run(agent)
