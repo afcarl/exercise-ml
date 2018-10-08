@@ -4,7 +4,6 @@ from keras.optimizers import Adam
 import numpy as np, random as rd, math
 from pathlib import Path
 
-
 '''
 Q-Learning with Experience Replay
 Added Target Network to stabilize learning
@@ -42,11 +41,7 @@ class DeepQAgent:
             return np.argmax(self.brain.predict(s))
 
     def observe(self, sample): # (s, a, r, s_)
-        if sample[1] == 1:
-            s = (sample[0], 2, sample[2], sample[3])
-        else:
-            s = (sample[0], sample[1], sample[2], sample[3])
-        self.brain.store(s)
+        self.brain.store(sample)
 
         # update the target model periodically
         if self.steps % self.update_frequency == 0:
@@ -54,8 +49,7 @@ class DeepQAgent:
 
         # insert debug there
         # if self.steps % 100 == 0:
-        # state
-        # prediction
+        # print("State: {}, Action: {}, Reward: {}\n".format(sample[0], sample[1], sample[3]))
 
         # decrease epsilon
         self.steps += 1
@@ -114,15 +108,17 @@ class DeepQBrain:
         this is specific to the model and not the Q Learning
         learning rate
         '''
-        self.learning_rate = 0.00001
+        self.alpha = 0.0001
 
         # load model from file if found
         # _model is the target model
         model_file = Path(self.model_filename)
         if model_file.exists():
+            print("Model file found. Loading model. ")
             self.model  = load_model(self.model_filename)
             self.model_ = load_model(self.model_filename)
         else:
+            print("Model file not found. Creating model. ")
             self.model  = self._create_model()
             self.model_ = self._create_model()
 
@@ -144,7 +140,7 @@ class DeepQBrain:
         model.add(Dense(32, kernel_initializer='lecun_uniform', activation='relu', input_dim=self.state_num))
         model.add(Dense(16, kernel_initializer='lecun_uniform', activation='relu'))
         model.add(Dense(self.action_num, activation='linear'))
-        model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
+        model.compile(loss='mse', optimizer=Adam(lr=self.alpha))
         model.summary()
         return model
 
