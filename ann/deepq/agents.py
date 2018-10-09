@@ -18,7 +18,7 @@ class DeepQAgent:
 
          # initialize Hyperparameters
         self.memory_capacity = 100000
-        self.batch_size = 64
+        self.batch_size = 256
         # Gamma: Discount Factor
         self.gamma = 0.90
         # Epsilon: Greedy Factor
@@ -27,7 +27,7 @@ class DeepQAgent:
         self.epsilon = self.epsilon_max
         # Lambda: Greed Factor Decay
         # underscore is there cause lambda is a reserved keyword
-        self.lambda_ = 0.01
+        self.lambda_ = 0.001
         self.steps = 0
         self.update_frequency = 10
         self.is_training = True
@@ -43,18 +43,16 @@ class DeepQAgent:
 
     def observe(self, sample): # (s, a, r, s_)
         self.brain.store(sample)
-
-        # update the target model periodically
-        if self.steps % self.update_frequency == 0:
-            self.brain.update_target()
-
-        # insert debug there
-        # if self.steps % 100 == 0:
-        # print("State: {}, Action: {}, Reward: {}\n".format(sample[0], sample[1], sample[3]))
-
-        # decrease epsilon
-        self.steps += 1
-        self.epsilon = self.epsilon_min + (self.epsilon_max - self.epsilon_min) * math.exp(-self.lambda_ * self.steps)
+        # start learning when memory is full
+        # encourage exploration until then
+        if(self.brain.is_memory_full()):
+            self.replay()
+            # decrease epsilon
+            self.steps += 1
+            self.epsilon = self.epsilon_min + (self.epsilon_max - self.epsilon_min) * math.exp(-self.lambda_ * self.steps)
+            # update the target model periodically
+            if self.steps % self.update_frequency == 0:
+                self.brain.update_target()
 
     def replay(self):
         recall_entries = self.brain.recall(self.batch_size)
@@ -93,6 +91,8 @@ class DeepQAgent:
     def save_model(self):
         self.brain.save_model()
 
+    def is_exploring(self):
+        return not self.brain.is_memory_full()
 # Deep Q Model Implementations with Memory
 class DeepQBrain:
 
@@ -158,7 +158,8 @@ class DeepQBrain:
         n = min(size, len(self.memory_entries))
         return rd.sample(self.memory_entries, n)
 
-
+    def is_memory_full(self):
+        return not len(self.memory_entries) < self.memory_capacity
 '''
 Actor Critic Agent
 Add the actor critic here

@@ -9,7 +9,9 @@ class Environment:
 
     # patience threshold is the number of episodes the rewards did not improve
     def train(self, agent, patience=100):
+        print("Training agent")
         # episodes e
+        e = 0
         e_without_improvement = 0
         reward_max_obtained = 0
 
@@ -17,30 +19,36 @@ class Environment:
             s = self.env.reset()
             reward_total = 0
             done = False
+            e += 1
             while not done:
                 # get action a from state s
                 a = agent.act(s)
                 s_, r, done, info = self.env.step(a)
-                # check if the epsilon greedy has went to the lowest
-                # possible value, and then stop. its already in full exploit
-                if agent.epsilon == agent.epsilon_min:
-                    done = True
+
+                # give reward based on velocity?
+                r = ((s_[1] ** 2) * 1000) * ((s_[0] + 10) * 1000)
+                if s_[0] >= 0.5:
+                    r = r * (2 * s_[0] * 1000)
+                    print('! %04.0f' % e)
+
+                # print('%02.2f' % a, r)
                 if done: # yep we are done.
                     s_ = None
                 agent.observe( (s, a, r, s_) )
-                agent.replay()
                 s = s_
                 reward_total += r
 
             # save everytime reward is better
-            if(reward_total > reward_max_obtained):
-                print('%02.0f' % e_without_improvement, reward_total)
+            if reward_total > reward_max_obtained:
+                # print('%02.0f' % e_without_improvement, reward_total)
                 sys.stdout.flush()
                 reward_max_obtained = reward_total
                 e_without_improvement = 0
                 agent.save_model()
             else:
-                e_without_improvement = e_without_improvement + 1
+                # dont penalize exploration
+                if not agent.is_exploring():
+                    e_without_improvement = e_without_improvement + 1
 
     # run the simulations with number of episodes
     def run(self, agent, episodes=10):
