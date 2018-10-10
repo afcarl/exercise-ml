@@ -137,7 +137,7 @@ class DeepQBrain:
 
     def _create_model(self):
         model = Sequential()
-        # input -> Dense[64] -> output
+        # Input -> Dense[32] -> Dense[16] -> Softmax -> Output
         model.add(Dense(32, kernel_initializer='lecun_uniform', activation='relu', input_dim=self.state_num))
         model.add(Dense(16, kernel_initializer='lecun_uniform', activation='relu'))
         model.add(Dense(self.action_num, kernel_initializer='lecun_uniform', activation='softmax'))
