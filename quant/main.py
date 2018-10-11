@@ -16,8 +16,8 @@ print("Action %2f"  % action_num)
 
 agent = DeepQAgent(state_num, action_num)
 
-# if len(sys.argv) > 1 and sys.argv[1] == 'train':
-#     environment.train(agent)
-# else:
-#     agent.is_training = False
-#     environment.run(agent)
+if len(sys.argv) > 1 and sys.argv[1] == 'train':
+    environment.train(agent)
+else:
+    agent.is_training = False
+    environment.run(agent)

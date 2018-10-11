@@ -10,17 +10,17 @@ class DeepQAgent:
         self.action_num = action_num
 
          # initialize Hyperparameters
-        self.memory_capacity = 100000
+        self.memory_capacity = 1000000
         self.batch_size = 256
         # Gamma: Discount Factor
         self.gamma = 0.90
         # Epsilon: Greedy Factor
         self.epsilon_max = 1 # EXPLORE EVERYTHING
-        self.epsilon_min = 0.01 # 1% Chance for Explore, else Exploit
+        self.epsilon_min = 0.10 # 10% Chance for Explore, else Exploit
         self.epsilon = self.epsilon_max
         # Lambda: Greed Factor Decay
         # underscore is there cause lambda is a reserved keyword
-        self.lambda_ = 0.001
+        self.lambda_ = 0.0001
         self.steps = 0
         self.update_frequency = 10
         self.is_training = True
