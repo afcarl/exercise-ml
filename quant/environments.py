@@ -84,9 +84,9 @@ class StockMarketEnv(Env):
     def step(self, action):
         if action == 1 and self.data[self.count] > 0.9:
             reward = 10
-        elif action == 2 and self.data[self.count] < -0.1:
+        elif action == 2 and self.data[self.count] < -0.9:
             reward = 10
-        elif action == 0 and self.data[self.count] <= 0.9 and self.data[self.count] >= -0.1:
+        elif action == 0 and self.data[self.count] <= 0.9 and self.data[self.count] >= -0.9:
             reward = 10
         else:
             reward = 0
