@@ -16,7 +16,7 @@ class DeepQAgent:
         self.gamma = 0.90
         # Epsilon: Greedy Factor
         self.epsilon_max = 1 # EXPLORE EVERYTHING
-        self.epsilon_min = 0.10 # 10% Chance for Explore, else Exploit
+        self.epsilon_min = 0.20 # 10% Chance for Explore, else Exploit
         self.epsilon = self.epsilon_max
         # Lambda: Greed Factor Decay
         # underscore is there cause lambda is a reserved keyword

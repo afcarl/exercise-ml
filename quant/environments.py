@@ -25,7 +25,7 @@ class Environment:
             while not done:
                 # get action a from state s
                 a = agent.act(s)
-                print(a, end="")
+                # print(a, end="")
                 # print(" %r" % agent.is_exploring(), end="")
                 # print(" %0.2f  " % agent.epsilon, end="")
                 s_, r, done, info = self.env.step(a)
@@ -36,7 +36,7 @@ class Environment:
                 s = s_
                 reward_total += r
 
-            print(" %02.0f" % reward_total)
+            # print(" %02.0f" % reward_total, end='\r')
             # save everytime reward is better
             if reward_total > reward_max_obtained:
                 reward_max_obtained = reward_total
@@ -69,30 +69,36 @@ class StockMarketEnv(Env):
         self.low = -1
         self.high = 1
         self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(self.low, self.high, shape=(3,1))
-        self.data = [[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1]]
+        self.observation_space = spaces.Box(self.low, self.high, shape=(1,))
+        x = np.arange(0, 100)
+        self.data = np.sin(0.05 * x)
         self.count = 0
 
     # returns the first state
     def reset(self):
         self.count = 0
-        self.state = np.array([0,0,self.count])
+        self.state = np.array([self.data[self.count]])
         # numpy so it can be reshaped
         return self.state
 
     def step(self, action):
-        if action == 0:
-            reward = 100
+        if action == 1 and self.data[self.count] > 0.9:
+            reward = 10
+        elif action == 2 and self.data[self.count] < -0.1:
+            reward = 10
+        elif action == 0 and self.data[self.count] <= 0.9 and self.data[self.count] >= -0.1:
+            reward = 10
         else:
             reward = 0
+
+        print(action, self.data[self.count],  reward)
 
         self.count += 1
         if self.count < len(self.data) - 1:
             done = False
         else:
             done = True
-        self.state = np.array([0,0,self.count])
-
+        self.state = np.array([self.data[self.count]])
         return self.state, reward, done, {}
 
     def render(self, close=False):
